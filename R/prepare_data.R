@@ -102,7 +102,7 @@ bluetooth <- bluetooth %>%
 
 
 # read in SPSS data, select PHQ9, age, sex, ID numbers
-surv_data <- read.spss(surv_file, use.value.labels = T, to.data.frame =  T, trim.factor.names = T, trim_values = T) %>%
+surv_data <- read.spss(surv_file, use.value.labels = F, to.data.frame =  T, trim.factor.names = T, trim_values = T) %>%
   select(WE_ID, Age, Sex, PHQ9_Sum27, PHQ9_1, PHQ9_2, PHQ9_3, PHQ9_4, PHQ9_5, PHQ9_6, PHQ9_7, PHQ9_8, PHQ9_9) %>%
   remove_all_labels(.)
 
@@ -273,14 +273,6 @@ social_features <- list(msg_features, call_features, sm_features, bluetooth_feat
 
 
 # Compute mobility features ---------------------------
-# formatting
-gps <- st_as_sf(gps, coords=c("LONGITUDE", "LATITUDE"))
 
-gps$tripId <- NULL
-gps$mode <- NULL
-gps$timestamp <- as.POSIXct(strptime(gps$timestamp, "%d-%m-%Y %H:%M:%S", tz ="Africa/Accra"), tz="Africa/Accra")
-gps$timestamp_local <- format(gps$timestamp, tz="Europe/Amsterdam",usetz=TRUE)
+# see RAPIDS
 
-# remove people that contributed limited data (total cumulative time/ no weekday/weekend time?)
-# remove anyone that left the Netherlands during data collection
-# removing for speed/distance can probably be ignored now?
