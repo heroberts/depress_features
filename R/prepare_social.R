@@ -9,7 +9,6 @@ library(sf)
 
 app_file <- "data/app_info.csv" 
 sessions_file <- "data/sessions.csv" 
-gps_file <- "data/gps.csv" 
 bluetooth_file <- "data/bluetooth.csv" 
 calls_file <- "data/calls.csv" 
 msg_file <- "data/messages.csv" 
@@ -20,44 +19,10 @@ id_file <- "data/merged_id_numbers.csv"
 # read in sensor data
 app_info <- read.csv(app_file)
 sessions <- read.csv(sessions_file)
-gps <- read.csv(gps_file)
 bluetooth <- read.csv(bluetooth_file)
 calls <- read.csv(calls_file)
 msg <- read.csv(msg_file)
 sm <- read.csv(sm_file)
-
-# confirm which cbs_ids and session numbers are from testing phase
-rm_ids <- subset(sessions, cbs_id < 9000000000) %>%
-  select(id) %>%
-  as.data.frame()
-
-# visual check that rm_ids are session numbers 1 to 49; remove
-rm(rm_ids)
-
-# remove session IDs greater than 49 from all datasets
-combo <- list("calls" = calls, "msg" = msg, "bluetooth" = bluetooth, "sm" = sm) %>%
-  lapply(., subset, session_id > 49) %>%
-  list2env(., envir=.GlobalEnv)
-
-rm(combo)
-
-# remove test phase sessions from sessions
-keep_sessions <- sessions[-c(1:49),]
-
-# check for multiple sessions
-keep_sessions <- keep_sessions %>% 
-  group_by(cbs_id) %>% 
-  mutate(count= n()) %>%
-  as.data.frame()
-
-# remove sessions with 0 or NA cumulative time
-# here we can adjust duration of necessary measurement time
-keep_sessions <- keep_sessions %>%
-  filter(!cumulative_measurement_time == 0) %>%
-  filter(!is.na(cumulative_measurement_time))
-
-# visual check option - no duplicates after removal of empty sessions - confirmed
-# duplicated(keep_sessions$cbs_id)
 
 # select IDS
 keep_ids <- keep_sessions %>%
@@ -270,9 +235,4 @@ rm(devices_weekday, devices_weekend)
 social_features <- list(msg_features, call_features, sm_features, bluetooth_features) %>% reduce(full_join, by = "cbs_id")
 
 # To do: add zeros so that it is clear in the join who gave permission and who not
-
-
-# Compute mobility features ---------------------------
-
-# see RAPIDS
 
